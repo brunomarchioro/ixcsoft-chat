@@ -33,6 +33,12 @@ cd api
 npm i
 ```
 
+#### Criar a pasta `data` se não existir:
+
+```
+mkdir data
+```
+
 #### Iniciar a aplicação:
 
 ```
