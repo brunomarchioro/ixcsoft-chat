@@ -7,14 +7,14 @@ export class UsersRouter {
 
     // GET users
     usersRouter.get("/", async (req: Request, res: Response) => {
-      const users: User[] = usersService.findAll();
+      const users: User[] = await usersService.findAll();
       res.status(200).json(users);
     });
 
     // GET users/:id
     usersRouter.get("/:id", async (req: Request, res: Response) => {
       const userId: string = req.params.id;
-      const user = usersService.getById(userId);
+      const user = await usersService.getById(userId);
 
       if (user) {
         return res.status(200).json(user);
@@ -26,7 +26,7 @@ export class UsersRouter {
     // POST users
     usersRouter.post("/", async (req: Request, res: Response) => {
       const payload = req.body;
-      const newUser = usersService.create(payload.name);
+      const newUser = await usersService.create(payload.name);
 
       res.status(201).json(newUser);
     });

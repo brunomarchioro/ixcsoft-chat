@@ -4,12 +4,12 @@ import { UsersService } from "./users.service";
 export class UsersWs {
   static init(usersService: UsersService, wss: Server) {
     wss.on("connection", (ws) => {
-      ws.on("message", (rawMessage: string) => {
+      ws.on("message", async (rawMessage: string) => {
         try {
           const message = JSON.parse(rawMessage);
 
           if (message.event === "login") {
-            const newUser = usersService.create(message.payload);
+            const newUser = await usersService.create(message.payload);
 
             ws.send(
               JSON.stringify({

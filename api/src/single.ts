@@ -1,5 +1,6 @@
 import * as Server from "./server";
+import { DataBase } from "./db";
 
-const storage = { users: [], messages: [] };
+DataBase.init();
 
-Server.start(storage);
+Server.start();

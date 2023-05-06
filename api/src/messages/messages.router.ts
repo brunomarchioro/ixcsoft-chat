@@ -11,7 +11,7 @@ export class MessagesRouter {
       const toUserId = req.query?.to || null;
 
       if (fromUserId && toUserId) {
-        const messages: Message[] = messagesService.find({
+        const messages: Message[] = await messagesService.find({
           fromUserId: fromUserId as string,
           toUserId: toUserId as string,
         });

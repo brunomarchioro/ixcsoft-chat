@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const WS_SERVER_HOST =
   import.meta.env.VITE_WS_SERVER_HOST || "ws://localhost:3000";
-const SOCKET_RECONNECTION_TIMEOUT = 3000;
+const SOCKET_RECONNECTION_TIMEOUT = 10000;
 
 let webSocketConnection = new WebSocket(WS_SERVER_HOST);
 

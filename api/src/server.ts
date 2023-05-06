@@ -9,18 +9,15 @@ import { UsersRouter } from "./users/users.router";
 import { MessagesRouter } from "./messages/messages.router";
 import { UsersWs } from "./users/users.ws";
 import { MessagesWs } from "./messages/messages.ws";
-import { Message, MessagesService } from "./messages/messages.service";
-import { User, UsersService } from "./users/users.service";
+import { MessagesService } from "./messages/messages.service";
+import { UsersService } from "./users/users.service";
+import { DataBase } from "./db";
 
 dotenv.config();
+
 const port = process.env.PORT || 3000;
 
-export interface Storage {
-  users: User[];
-  messages: Message[];
-}
-
-export function start(storage: Storage): void {
+export function start(): void {
   const app = express();
   const server = createServer(app);
   const wss = new Server({ server });
@@ -29,8 +26,10 @@ export function start(storage: Storage): void {
   app.use(bodyParser.json());
   app.use(morgan("tiny"));
 
-  const messagesService = new MessagesService(storage.messages);
-  const usersService = new UsersService(storage.users);
+  const db = DataBase.getDb();
+
+  const messagesService = new MessagesService(db);
+  const usersService = new UsersService(db);
 
   app.use("/users", UsersRouter.init(usersService));
   app.use("/messages", MessagesRouter.init(messagesService));

@@ -1,14 +1,15 @@
 import cluster, { Worker } from "cluster";
 import os from "os";
 import * as Server from "./server";
-
-const storage = { users: [], messages: [] };
+import { DataBase } from "./db";
 
 if (cluster.isPrimary) {
   const cores = os.cpus().length;
 
   console.log(`Total de núcleos: ${cores}`);
   console.log(`Processo principal ${process.pid} está rodando`);
+
+  DataBase.init();
 
   for (let i = 0; i < cores; i++) {
     cluster.fork();
@@ -20,5 +21,5 @@ if (cluster.isPrimary) {
     cluster.fork();
   });
 } else {
-  Server.start(storage);
+  Server.start();
 }

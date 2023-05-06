@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import sqlite3 from "sqlite3";
 
 export interface Message {
   id: string;
@@ -19,32 +20,82 @@ export interface FindAllMessagesParams {
 }
 
 export class MessagesService {
-  messages: Message[];
+  db: sqlite3.Database;
 
-  constructor(messages: Message[]) {
-    this.messages = messages;
+  constructor(db: sqlite3.Database) {
+    this.db = db;
   }
 
-  findAll() {
-    return this.messages;
+  findAll(): Promise<Message[]> {
+    return new Promise((resolve, reject) => {
+      this.db.all(`SELECT * FROM messages`, (error, rows) => {
+        if (error) {
+          reject(error.message);
+        }
+
+        resolve(
+          rows.map((row: any) => ({
+            id: row.id,
+            fromUserId: row.from_user_id,
+            toUserId: row.to_user_id,
+            body: row.body,
+          }))
+        );
+      });
+    });
   }
 
-  find({ fromUserId, toUserId }: FindAllMessagesParams) {
-    return this.messages.filter(
-      (m) =>
-        (m.fromUserId === fromUserId || m.fromUserId === toUserId) &&
-        (m.toUserId === toUserId || m.toUserId === fromUserId)
-    );
+  find({ fromUserId, toUserId }: FindAllMessagesParams): Promise<Message[]> {
+    return new Promise((resolve, reject) => {
+      this.db.all(`SELECT * FROM messages`, (error, rows) => {
+        if (error) {
+          reject(error.message);
+        }
+
+        const messages = rows.filter(
+          (row: any) =>
+            (row.from_user_id === fromUserId ||
+              row.from_user_id === toUserId) &&
+            (row.to_user_id === toUserId || row.to_user_id === fromUserId)
+        );
+
+        resolve(
+          messages.map((row: any) => ({
+            id: row.id,
+            fromUserId: row.from_user_id,
+            toUserId: row.to_user_id,
+            body: row.body,
+          }))
+        );
+      });
+    });
   }
 
-  create(payload: CreateMessageDTO) {
-    const newMessage: Message = {
-      id: uuidv4(),
-      fromUserId: payload.fromUserId,
-      toUserId: payload.toUserId,
-      body: payload.body,
-    };
-    this.messages.push(newMessage);
-    return newMessage;
+  create(payload: CreateMessageDTO): Promise<Message> {
+    return new Promise((resolve, reject) => {
+      const newMessage: Message = {
+        id: uuidv4(),
+        fromUserId: payload.fromUserId,
+        toUserId: payload.toUserId,
+        body: payload.body,
+      };
+
+      this.db.run(
+        `INSERT INTO messages (id, from_user_id, to_user_id, body) VALUES (?, ?, ?, ?)`,
+        [
+          newMessage.id,
+          newMessage.fromUserId,
+          newMessage.toUserId,
+          newMessage.body,
+        ],
+        (error) => {
+          if (error) {
+            reject(error.message);
+          }
+
+          resolve(newMessage);
+        }
+      );
+    });
   }
 }
