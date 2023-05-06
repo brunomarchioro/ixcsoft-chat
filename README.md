@@ -42,7 +42,7 @@ mkdir data
 #### Iniciar a aplicação:
 
 ```
-npm run dev:single
+npm run dev
 ```
 
 ### WEB
