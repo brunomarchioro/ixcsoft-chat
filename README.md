@@ -11,7 +11,7 @@ A Solução foi dividida em duas aplicações que estão neste repositório:
 - web - Na pasta web encontra-se a aplicação front-end desenvolvida para ser utilizada em browsers;
 - api - Na pasta api encontra-se a aplicação back-end desenvolvida para ser executada em Node.js;
 
-Para executar as aplicações recomendo abrir dois consoles distintos. Seria possível utilizar outras maneiras, como utilizar o módulo `concurrently`, mas acho mais claro ter dois consoles.
+Para executar as aplicações recomendo abrir dois consoles distintos.
 
 ### API
 
