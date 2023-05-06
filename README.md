@@ -4,7 +4,6 @@ ___
 ## Descrição da solução
 
 Para o desenvolvimento da aplicação procurei utilizar o menor número de bibliotecas ou frameworks.
-Também não utilizei um banco de dados para concentrar o tempo nas funcionalidades requeridas.
 
 A Solução foi dividida em duas aplicações que estão neste repositório:
 
@@ -13,13 +12,11 @@ A Solução foi dividida em duas aplicações que estão neste repositório:
 
 Para executar as aplicações recomendo abrir dois consoles distintos.
 
+O desafio maior foi a implementação utilizando o módulo `cluster` que ainda não havia utilizado.
+
 ### API
 
-A API foi desenvolvida utilizando o framework [Express](https://expressjs.com/) e a biblioteca [ws](https://github.com/websockets/ws) para o servidor WebSocket.   
-
-Infelizmente, não tive tempo para terminar um dos requisitos que era a utilização do módulo `cluster`.
-Foi iniciada a implementação, mas não tive êxito ao sincronizar as mensagens do WebSocket entre os workers.
-Ainda não havia utilizado esse módulo, apesar de já ter configurado o deploy de aplicações utilizando o [pm2](https://pm2.keymetrics.io/).
+A API foi desenvolvida utilizando o framework [Express](https://expressjs.com/) e a biblioteca [socket.io](https://socket.io/) para o servidor socket.
 
 
 #### Iniciando

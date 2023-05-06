@@ -1,33 +1,18 @@
-import WebSocket, { Server } from "ws";
+import { Server } from "socket.io";
 import { UsersService } from "./users.service";
 
 export class UsersWs {
-  static init(usersService: UsersService, wss: Server) {
-    wss.on("connection", (ws) => {
-      ws.on("message", async (rawMessage: string) => {
+  static init(usersService: UsersService, io: Server) {
+    io.on("connection", (socket) => {
+      socket.on("login", async (rawMessage: any) => {
         try {
-          const message = JSON.parse(rawMessage);
+          const newUser = await usersService.create(rawMessage);
 
-          if (message.event === "login") {
-            const newUser = await usersService.create(message.payload);
+          socket.emit("login", newUser);
 
-            ws.send(
-              JSON.stringify({
-                event: "login",
-                payload: newUser,
-              })
-            );
-
-            wss.clients.forEach((client) => {
-              if (client !== ws && client.readyState === WebSocket.OPEN) {
-                client.send(
-                  JSON.stringify({
-                    event: "new-user",
-                    payload: newUser,
-                  })
-                );
-              }
-            });
+          const sockets = await io.fetchSockets();
+          for (const socket of sockets) {
+            socket.emit("new-user", newUser);
           }
         } catch (e) {
           console.error("Erro ao processar mensagem", e);

@@ -1,26 +1,16 @@
-import WebSocket, { Server } from "ws";
+import { Server } from "socket.io";
 import { MessagesService } from "./messages.service";
 
 export class MessagesWs {
-  static init(messagesService: MessagesService, wss: Server) {
-    wss.on("connection", (ws) => {
-      ws.on("message", async (rawMessage: string) => {
+  static init(messagesService: MessagesService, io: Server) {
+    io.on("connection", (socket) => {
+      socket.on("new-message", async (rawMessage: any) => {
         try {
-          const message = JSON.parse(rawMessage);
+          const newMessage = await messagesService.create(rawMessage);
 
-          if (message.event === "new-message") {
-            const newMessage = await messagesService.create(message.payload);
-
-            wss.clients.forEach((client) => {
-              if (client.readyState === WebSocket.OPEN) {
-                client.send(
-                  JSON.stringify({
-                    event: "new-message",
-                    payload: newMessage,
-                  })
-                );
-              }
-            });
+          const sockets = await io.fetchSockets();
+          for (const socket of sockets) {
+            socket.emit("new-message", newMessage);
           }
         } catch (e) {
           console.error("Erro ao processar mensagem", e);

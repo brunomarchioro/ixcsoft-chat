@@ -16,31 +16,25 @@ export class UsersService {
   }
 
   findAll(): Promise<User[]> {
-    console.log("findAll");
     return new Promise((resolve, reject) => {
       this.db.all(`SELECT * FROM users`, (error, rows) => {
-        console.log({ error, row: rows });
         if (error) {
           reject(error.message);
         }
-        console.log(rows);
         resolve(rows as User[]);
       });
     });
   }
 
   getById(userId: string): Promise<User> {
-    console.log("getById");
     return new Promise((resolve, reject) => {
       this.db.get(
         `SELECT * FROM users WHERE id = ?`,
         [userId],
         (error, row) => {
-          console.log({ error, row });
           if (error) {
             reject(error.message);
           }
-          console.log(row);
           resolve(row as User);
         }
       );
@@ -58,7 +52,6 @@ export class UsersService {
         `INSERT INTO users (id, name) VALUES (?, ?)`,
         [newUser.id, newUser.name],
         (error) => {
-          console.log({ error });
           if (error) {
             reject(error.message);
           }

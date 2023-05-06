@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
 const WS_SERVER_HOST =
-  import.meta.env.VITE_WS_SERVER_HOST || "ws://localhost:3000";
+  import.meta.env.VITE_WS_SERVER_HOST || "http://localhost:3000";
 const SOCKET_RECONNECTION_TIMEOUT = 10000;
 
-let webSocketConnection = new WebSocket(WS_SERVER_HOST);
+let socketConnection = io(WS_SERVER_HOST);
 
 export interface WebSocketMessage {
   event: string;
@@ -17,12 +18,12 @@ export interface UseWebSocketProps {
 }
 
 export interface UseWebSocketReturn {
-  webSocket: WebSocket;
+  socket: Socket;
   sendWebSocketMessage: (message: WebSocketMessage) => void;
 }
 
 export function useWebSocket(props?: UseWebSocketProps): UseWebSocketReturn {
-  const [webSocket, setWebSocket] = useState<WebSocket>(webSocketConnection);
+  const [socket, setSocket] = useState<Socket>(socketConnection);
 
   useEffect(() => {
     const onClose = () => {
@@ -33,33 +34,33 @@ export function useWebSocket(props?: UseWebSocketProps): UseWebSocketReturn {
       }, SOCKET_RECONNECTION_TIMEOUT);
     };
 
-    webSocket.addEventListener("close", onClose);
+    socket.on("disconnect", onClose);
 
     return () => {
-      webSocket.removeEventListener("close", onClose);
+      socket.off("disconnect", onClose);
     };
-  }, [webSocket, setWebSocket, props?.onWebSocketClose]);
+  }, [socket, setSocket, props?.onWebSocketClose]);
 
   useEffect(() => {
-    const onMessage = (event: MessageEvent) => {
+    const onMessage = (eventName: string, payload: any) => {
       try {
-        const json = JSON.parse(event.data);
-        props?.onWebSocketMessage && props.onWebSocketMessage(json);
+        props?.onWebSocketMessage &&
+          props.onWebSocketMessage({ event: eventName, payload });
       } catch (err) {
         console.log(err);
       }
     };
 
-    webSocket.addEventListener("message", onMessage);
+    socket.onAny(onMessage);
 
     return () => {
-      webSocket.removeEventListener("message", onMessage);
+      socket.offAny(onMessage);
     };
-  }, [webSocket, setWebSocket, props?.onWebSocketMessage]);
+  }, [socket, setSocket, props?.onWebSocketMessage]);
 
   const sendWebSocketMessage = (message: WebSocketMessage) => {
-    webSocket.send(JSON.stringify(message));
+    socket.emit(message.event, message.payload);
   };
 
-  return { webSocket, sendWebSocketMessage };
+  return { socket, sendWebSocketMessage };
 }
